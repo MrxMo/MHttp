@@ -59,26 +59,22 @@ public class MHttpBridge implements MHttpAble {
     }
 
     @Override
-    public <T> Observable<T> get(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        mHttpAble.get(url, params, mHttpResponseAble);
-        return null;
+    public <T> Observable<T> get(String url, Map<String, Object> params) {
+        return mHttpAble.get(url, params);
     }
 
     @Override
-    public <T> Observable<T> post(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        mHttpAble.post(url, params, mHttpResponseAble);
-        return null;
+    public <T> Observable<T> post(String url, Map<String, Object> params) {
+        return mHttpAble.post(url, params);
     }
 
     @Override
-    public <T> Observable<T> put(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        mHttpAble.put(url, params, mHttpResponseAble);
-        return null;
+    public <T> Observable<T> put(String url, Map<String, Object> params) {
+        return mHttpAble.put(url, params);
     }
 
     @Override
-    public <T> Observable<T> delete(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        mHttpAble.delete(url, params, mHttpResponseAble);
-        return null;
+    public <T> Observable<T> delete(String url, Map<String, Object> params) {
+        return mHttpAble.delete(url, params);
     }
 }

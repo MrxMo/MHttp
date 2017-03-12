@@ -6,7 +6,6 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.mrmo.mhttplib.utils.MStringUtil;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,11 +13,8 @@ import java.util.Set;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
+import io.reactivex.internal.schedulers.IoScheduler;
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -117,55 +113,28 @@ public class MOkHttp implements MHttpAble {
     }
 
     @Override
-    public <T> Observable<T> get(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
+    public <T> Observable<T> get(String url, Map<String, Object> params) {
         Request request = getRequest(MHttpAble.HTTP_METHOD_GET, url, params);
-        Object[] paramArray = getParams(params);
-        String apiPath = request.url()+((String)paramArray[2]);
-        request(apiPath, request, mHttpResponseAble);
-
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> e) throws Exception {
-                Log.i(TAG, "subscribe ");
-            }
-        }).flatMap(new Function<String, ObservableSource<T>>() {
-            @Override
-            public ObservableSource<T> apply(@NonNull String s) throws Exception {
-                Log.i(TAG, "flatMap ");
-                return null;
-            }
-        });
+        return request(params, request);
     }
 
+
     @Override
-    public <T> Observable<T> post(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
+    public <T> Observable<T> post(String url, Map<String, Object> params) {
         Request request = getRequest(MHttpAble.HTTP_METHOD_POST, url, params);
-        Object[] paramArray = getParams(params);
-        String apiPath = request.url()+((String)paramArray[2]);
-        request(apiPath, request, mHttpResponseAble);
-
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> e) throws Exception {
-                Log.i(TAG, "subscribe ");
-            }
-        }).flatMap(new Function<String, ObservableSource<T>>() {
-            @Override
-            public ObservableSource<T> apply(@NonNull String s) throws Exception {
-                Log.i(TAG, "flatMap ");
-                return null;
-            }
-        });
+        return request(params, request);
     }
 
     @Override
-    public <T> Observable<T> put(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        return null;
+    public <T> Observable<T> put(String url, Map<String, Object> params) {
+        Request request = getRequest(MHttpAble.HTTP_METHOD_PUT, url, params);
+        return request(params, request);
     }
 
     @Override
-    public <T> Observable<T> delete(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        return null;
+    public <T> Observable<T> delete(String url, Map<String, Object> params) {
+        Request request = getRequest(MHttpAble.HTTP_METHOD_DELETE, url, params);
+        return request(params, request);
     }
 
     private Request getRequest(int methodType, String url, Map<String, Object> param) {
@@ -246,6 +215,9 @@ public class MOkHttp implements MHttpAble {
 
     private void printRequestStatusLog(String url, int code, String message, boolean isSuccess) {
         if (isSuccess) {
+            if (!MAPI.isDebug()) {
+                return;
+            }
             Log.i(TAG, "mHttp request success:");
             Log.i(TAG, "url : " + url);
             Log.i(TAG, "httpCode:" + code);
@@ -259,51 +231,77 @@ public class MOkHttp implements MHttpAble {
         }
     }
 
-    private String request(final String url, final Request request, final MHttpResponseAble mHttpResponseAble) {
-        Call call = getHttpInstance().newCall(request);
+    private <T> Observable<T> request(Map<String, Object> params, final Request request) {
+
+        Object[] paramArray = getParams(params);
+        final String url = request.url() + ((String) paramArray[2]);
+
+        final Call call = getHttpInstance().newCall(request);
 //        Response response = call.execute(); // 同步
-        call.enqueue(new Callback() { // 异步
+
+        // 异步
+//        call.enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                printRequestStatusLog(url, -1, e.toString(), false);
+//                e.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                response(url, response, mHttpResponseAble);
+//            }
+//        });
+
+        return Observable.create(new ObservableOnSubscribe<T>() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                printRequestStatusLog(url, -1, e.toString(), false);
-                e.printStackTrace();
+            public void subscribe(ObservableEmitter<T> emitter) throws Exception {
+                Response response = call.execute(); // 同步
+
+                if (!MAPI.isDebug()) {
+                    Log.i(TAG, "Server: " + response.header("Server"));
+                    Log.i(TAG, "Date: " + response.header("Date"));
+                    Log.i(TAG, "Vary: " + response.headers("Vary"));
+                }
+
+                String result = "";
+                boolean isSuccess = true;
+                try {
+                    result = response.body().string();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    isSuccess = false;
+
+                    MHttpException mHttpException = new MHttpException();
+                    mHttpException.setCode(MHttpCode.M_HTTP_CODE_RESPONSE_DATA_EXCEPTION);
+                    mHttpException.setMsg("数据异常");
+                    mHttpException.setDescription(e.toString());
+                    emitter.onError(mHttpException);
+                }
+
+                if (!response.isSuccessful()) {
+                    isSuccess = false;
+                    MHttpException mHttpException = new MHttpException();
+                    mHttpException.setCode(response.code());
+                    mHttpException.setMsg("网络不给力");
+                    mHttpException.setDescription(result);
+                    emitter.onError(mHttpException);
+
+                } else {
+                    isSuccess = true;
+                    emitter.onNext(((T) result));
+
+//                    Map<String, String> gist = getGsonInstance().fromJson(response.body().charStream(), Map.class);
+//                    for (Map.Entry<String, String> entry : gist.entrySet()) {
+//                        Log.i(TAG, entry.getKey() + ":" + String.valueOf(entry.getValue()));
+//                    }
+                }
+
+                emitter.onComplete();
+
+                printRequestStatusLog(url, response.code(), result, isSuccess);
             }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                response(url, response, mHttpResponseAble);
-            }
-        });
-
-        return "";
-    }
-
-    private String response(String url, Response response, MHttpResponseAble mHttpResponseAble) {
-        try {
-            Log.i(TAG, "Server: " + response.header("Server"));
-            Log.i(TAG, "Date: " + response.header("Date"));
-            Log.i(TAG, "Vary: " + response.headers("Vary"));
-
-            boolean isSuccess = true;
-            if (!response.isSuccessful()) {
-                isSuccess = false;
-                mHttpResponseAble.onFailure(context, response.code(), "网络不给力");
-
-            } else {
-//                Map<String, String> gist = getGsonInstance().fromJson(response.body().charStream(), Map.class);
-//                for (Map.Entry<String, String> entry : gist.entrySet()) {
-//                    Log.i(TAG, entry.getKey()+":"+String.valueOf(entry.getValue()));
-//                }
-            }
-
-            printRequestStatusLog(url, response.code(), response.body().string(), isSuccess);
-
-            return response.body().toString();
-        } catch (Exception e) {
-            printRequestStatusLog(url, -1, e.toString(), false);
-            e.printStackTrace();
-        }
-        return "";
+        }).subscribeOn(new IoScheduler());
     }
 
 }

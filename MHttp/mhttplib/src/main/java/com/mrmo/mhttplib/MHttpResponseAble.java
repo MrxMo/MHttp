@@ -2,12 +2,13 @@ package com.mrmo.mhttplib;
 
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 /**
  * http请求回调接口
  * Created by moguangjian on 15/10/10 14:08.
  */
-public interface MHttpResponseAble {
+public interface MHttpResponseAble<T> {
 
     /**
      * 请求准备(还没有发起请求)
@@ -17,25 +18,24 @@ public interface MHttpResponseAble {
     /**
      * 请求失败
      *
+     * @param context
      * @param statusCode
      * @param object
      */
-    public void onFailure(int statusCode, Object object);
-
-    public void onFailure(Context context, int statusCode, Object object);
+    void onFailure(@Nullable Context context, int statusCode, Object object);
 
     /**
      * 请求成功
      *
      * @param statusCode
-     * @param object
+     * @param t
      */
-    public void onSuccess(int statusCode, Object object);
+    void onSuccess(int statusCode, T t);
 
     /**
      * 请求结束
      */
-    public void onFinish();
+    void onFinish();
 
     /**
      * 请求进度
@@ -43,5 +43,5 @@ public interface MHttpResponseAble {
      * @param bytesWritten
      * @param totalSize
      */
-    public void onProgress(long bytesWritten, long totalSize);
+    void onProgress(long bytesWritten, long totalSize);
 }

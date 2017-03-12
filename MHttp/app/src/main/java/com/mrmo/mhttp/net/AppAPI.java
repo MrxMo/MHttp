@@ -3,6 +3,7 @@ package com.mrmo.mhttp.net;
 import android.content.Context;
 
 import com.mrmo.mhttplib.MHttpResponseAble;
+import com.mrmo.mhttplib.MHttpSubscriber;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,22 +13,24 @@ import java.util.Map;
  */
 public class AppAPI extends GAPI {
 
-    private final String API_GET_ABOUT_ME = "getWelcome.html";
-
     public AppAPI(Context context) {
         super(context);
     }
 
     /**
+     * 测试API
+     *
      * @param mHttpResponseAble
      */
     public void testAPI(MHttpResponseAble mHttpResponseAble) {
-
         Map map = new HashMap();
         map.put("name", "a");
         map.put("sex", "boy");
 
-        get(API_GET_ABOUT_ME, map, mHttpResponseAble);
-    }
+        requestSubscribe(
+                get("getWelcome.html", map),
+                new GHttpResultConverter<TestModel>(gson),
+                new MHttpSubscriber<TestModel>(context, mHttpResponseAble));
 
+    }
 }

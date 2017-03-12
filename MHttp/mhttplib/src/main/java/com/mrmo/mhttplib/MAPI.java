@@ -3,9 +3,16 @@ package com.mrmo.mhttplib;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.mrmo.mhttplib.utils.MStringUtil;
 
 import java.util.Map;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.mrmo.mhttplib.MHttpAble.HTTP_METHOD_DELETE;
 import static com.mrmo.mhttplib.MHttpAble.HTTP_METHOD_GET;
@@ -17,14 +24,19 @@ import static com.mrmo.mhttplib.MHttpAble.HTTP_METHOD_PUT;
  */
 public abstract class MAPI {
 
+    private static boolean isDebug = true;
+
     private static final String TAG = MAPI.class.getSimpleName();
 
     protected Context context;
     private MHttpBridge mHttpBridge;
+    protected Gson gson;
 
     public MAPI(Context context) {
         this.context = context;
 
+        gson = new Gson();
+        isDebug = getDebugStatus();
         initHttpBridge();
     }
 
@@ -34,9 +46,9 @@ public abstract class MAPI {
 
     protected abstract MHttpAble getMHttpAble();
 
-    protected abstract boolean isDebug();
+    protected abstract boolean getDebugStatus();
 
-    protected abstract boolean requestHttpPrepare(int method, String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble);
+    protected abstract boolean requestHttpPrepare(int method, String url, Map<String, Object> params);
 
     private void initHttpBridge() {
         MHttpAble mHttpAble = getMHttpAble();
@@ -46,6 +58,10 @@ public abstract class MAPI {
 
         mHttpBridge = new MHttpBridge();
         mHttpBridge.setMHttpAble(mHttpAble);
+    }
+
+    public static boolean isDebug() {
+        return isDebug;
     }
 
     protected MHttpBridge getHttpBridge() {
@@ -67,50 +83,67 @@ public abstract class MAPI {
         return apiServer;
     }
 
-    protected void post(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        requestHttp(MHttpAble.HTTP_METHOD_POST, url, params, mHttpResponseAble);
+    protected <T> Observable<T> post(String url, Map<String, Object> params) {
+        return requestHttp(MHttpAble.HTTP_METHOD_POST, url, params);
     }
 
-    protected void get(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        requestHttp(MHttpAble.HTTP_METHOD_GET, url, params, mHttpResponseAble);
+    protected <T> Observable<T> get(String url, Map<String, Object> params) {
+        return requestHttp(MHttpAble.HTTP_METHOD_GET, url, params);
     }
 
-    protected void put(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        requestHttp(MHttpAble.HTTP_METHOD_PUT, url, params, mHttpResponseAble);
+    protected <T> Observable<T> put(String url, Map<String, Object> params) {
+        return requestHttp(MHttpAble.HTTP_METHOD_PUT, url, params);
     }
 
-    protected void delete(String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
-        requestHttp(MHttpAble.HTTP_METHOD_DELETE, url, params, mHttpResponseAble);
+    protected <T> Observable<T> delete(String url, Map<String, Object> params) {
+        return requestHttp(MHttpAble.HTTP_METHOD_DELETE, url, params);
     }
 
-    private void requestHttp(int method, String url, Map<String, Object> params, MHttpResponseAble mHttpResponseAble) {
+    private <T> Observable<T> requestHttp(int method, String url, Map<String, Object> params) {
         if (MStringUtil.isEmpty(url)) {
             url = "";
         }
         url = getApiServer() + url;
-        boolean isRequest = requestHttpPrepare(method, url, params, mHttpResponseAble);
+        boolean isRequest = requestHttpPrepare(method, url, params);
 
+        Observable<T> observable = null;
         if (!isRequest) {
-            return;
+            return observable;
         }
 
         switch (method) {
             case HTTP_METHOD_POST:
-                mHttpBridge.post(url, params, mHttpResponseAble);
+                observable = mHttpBridge.post(url, params);
                 break;
 
             case HTTP_METHOD_GET:
-                mHttpBridge.get(url, params, mHttpResponseAble);
+                observable =  mHttpBridge.get(url, params);
                 break;
 
             case HTTP_METHOD_PUT:
-                mHttpBridge.put(url, params, mHttpResponseAble);
+                observable =  mHttpBridge.put(url, params);
                 break;
 
             case HTTP_METHOD_DELETE:
-                mHttpBridge.delete(url, params, mHttpResponseAble);
+                observable =  mHttpBridge.delete(url, params);
                 break;
         }
+
+        return observable;
     }
 
+    /**
+     * 发送请求订阅
+     * @param observable
+     * @param function
+     * @param observer
+     * @param <T>
+     */
+    protected  <T> void requestSubscribe(Observable<T> observable, Function function, Observer observer) {
+        observable
+                .map(function)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
 }
