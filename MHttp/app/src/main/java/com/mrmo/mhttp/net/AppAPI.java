@@ -28,9 +28,24 @@ public class AppAPI extends GAPI {
         map.put("sex", "boy");
 
         requestSubscribe(
-                get("getWelcome.html", map),
+                post("getWelcome.html", map),
                 new GHttpResultConverter<TestModel>(gson),
                 new MHttpSubscriber<TestModel>(context, mHttpResponseAble));
 
+    }
+
+    /**
+     * 测试api
+     * @param mHttpResponseAble
+     */
+    public void test(MHttpResponseAble mHttpResponseAble) {
+        Map map = new HashMap();
+        map.put("phone", "15521212697");
+        map.put("type", "1");
+
+        requestSubscribe(
+                post("User/getcode", map),
+                new GHttpResultConverter<HttpResultModel>(gson),
+                new MHttpSubscriber<HttpResultModel>(context, mHttpResponseAble));
     }
 }

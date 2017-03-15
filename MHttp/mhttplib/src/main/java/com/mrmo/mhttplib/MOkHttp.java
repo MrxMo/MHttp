@@ -14,6 +14,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.internal.schedulers.IoScheduler;
+import io.reactivex.internal.schedulers.TrampolineScheduler;
 import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -214,6 +215,10 @@ public class MOkHttp implements MHttpAble {
     }
 
     private void printRequestStatusLog(String url, int code, String message, boolean isSuccess) {
+        printRequestStatusLog(TAG, url, code, message, isSuccess);
+    }
+
+    public static void printRequestStatusLog(String TAG, String url, int code, String message, boolean isSuccess) {
         if (isSuccess) {
             if (!MAPI.isDebug()) {
                 return;

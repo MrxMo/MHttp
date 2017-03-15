@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.mrmo.mhttp.net.AppAPI;
+import com.mrmo.mhttp.net.HttpResultModel;
 import com.mrmo.mhttp.net.TestModel;
 import com.mrmo.mhttplib.MHttpResponseImpl;
 
@@ -19,11 +20,18 @@ public class MainActivity extends AppCompatActivity {
 
         appAPI = new AppAPI(this);
 
-        appAPI.testAPI(new MHttpResponseImpl<TestModel>() {
+//        appAPI.testAPI(new MHttpResponseImpl<TestModel>() {
+//
+//            @Override
+//            public void onSuccessResult(int statusCode, final TestModel testModel) {
+//                Toast.makeText(getApplicationContext(), ""+testModel.getImage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+        appAPI.test(new MHttpResponseImpl<HttpResultModel>() {
 
             @Override
-            public void onSuccessResult(int statusCode, final TestModel testModel) {
-                Toast.makeText(getApplicationContext(), ""+testModel.getImage(), Toast.LENGTH_SHORT).show();
+            public void onSuccessResult(int statusCode, final HttpResultModel testModel) {
             }
         });
     }
