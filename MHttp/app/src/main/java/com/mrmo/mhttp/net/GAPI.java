@@ -57,11 +57,25 @@ public class GAPI extends MAPI {
     @Override
     protected boolean requestHttpPrepare(int method, String url, Map<String, Object> params) {
 
+        String apiName = url.replaceAll(host, "").replaceAll("/", ".");
+        params.put("i", apiName); // 调用者
+        params.put("u", "app"); // 调用者
+        params.put("t", API_VERSION); // 版本号
+        params.put("x", "test"); // 终端
+        params.put("b", "auto"); // 设备号
+        params.put("a", "api"); // 系统
+        params.put("pageSize", "15");
+        params.put("os", "Android" + Build.VERSION.RELEASE);                        // 客户端系统信息	iPhone; iOS 9.3.1;
+//        params.put("app_ver", MPackageUtil.getAppVersionName(context));             // 应用版本号
+        params.put("d", System.currentTimeMillis()/1000); // 请求时间 1489422824
+        params.put("sign", getSignature(params));
+        params.put("c", "0"); // 是否开启验证。1:需要 / 0:不需要
+
         return true;
-}
+    }
 
     protected static String getSignature(Map<String, Object> params) {
-        String appKey = "test";
+        String appKey = "woshidd123!@#";
         Set<Map.Entry<String, Object>> set = params.entrySet();
         Iterator<Map.Entry<String, Object>> iterator= set.iterator();
 

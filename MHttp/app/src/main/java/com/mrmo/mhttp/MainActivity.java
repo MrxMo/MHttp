@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.mrmo.mhttp.net.AppAPI;
 import com.mrmo.mhttp.net.HttpResultModel;
 import com.mrmo.mhttp.net.TestModel;
+import com.mrmo.mhttp.net.VerifyCodeModel;
 import com.mrmo.mhttplib.MHttpResponseImpl;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,10 +29,11 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        appAPI.test(new MHttpResponseImpl<HttpResultModel>() {
+        appAPI.test(new MHttpResponseImpl<VerifyCodeModel.DataBean>() {
 
             @Override
-            public void onSuccessResult(int statusCode, final HttpResultModel testModel) {
+            public void onSuccessResult(int statusCode, final VerifyCodeModel.DataBean testModel) {
+                Toast.makeText(getApplicationContext(), "jj"+testModel.getCode(), Toast.LENGTH_SHORT).show();
             }
         });
     }

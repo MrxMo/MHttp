@@ -3,8 +3,11 @@ package com.mrmo.mhttp.net;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mrmo.mhttplib.MHttpCode;
 import com.mrmo.mhttplib.MHttpException;
+
+import java.lang.reflect.Type;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -26,33 +29,25 @@ public class GHttpResultConverter<T> implements Function<String, T> {
     @Override
     public T apply(@NonNull String str) throws Exception {
         T t = null;
-        TestModel model = null;
-        MHttpException mHttpException = new MHttpException();
-        
+        Type type = new TypeToken<T>(){}.getType();
         try {
-            model = gson.fromJson(str, TestModel.class);
-            t = (T) model;
+            t = gson.fromJson(str, type);
 
         } catch (Exception e) {
             String msg = "解析异常";
             Log.e(TAG, msg);
-            mHttpException.setCode(MHttpCode.M_HTTP_CODE_HANDLE_DATA_NULL);
-            mHttpException.setMsg(msg);
-            mHttpException.setDescription(msg);
-
             e.printStackTrace();
 
-            throw mHttpException;
         }
 
-
-        if (model != null && !model.getStatus().equals("success")) {
-            mHttpException.setCode(-1);
-            mHttpException.setMsg(model.getStatus());
-            mHttpException.setDescription(model.getStatus());
-
-            throw mHttpException;
-        }
+        System.out.println(type.toString()+ " jj: "+t.toString());
+//        if (model != null && !model.getStatus().equals("success")) {
+//            mHttpException.setCode(-1);
+//            mHttpException.setMsg(model.getStatus());
+//            mHttpException.setDescription(model.getStatus());
+//
+//            throw mHttpException;
+//        }
 
 
         return t;
