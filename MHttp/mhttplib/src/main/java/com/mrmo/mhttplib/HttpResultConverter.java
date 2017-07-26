@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
+
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 
@@ -24,12 +26,11 @@ public class HttpResultConverter<T> implements Function<String, T> {
     @Override
     public T apply(@NonNull String str) throws Exception {
         T t = null;
-        MHttpResultModel model = null;
+        Type type = getClass().getGenericSuperclass();
         MHttpException mHttpException = new MHttpException();
 
         try {
-            model = gson.fromJson(str, MHttpResultModel.class);
-            t = (T) model.getData();
+            t = gson.fromJson(str, type);
 
         } catch (Exception e) {
             String msg = "解析异常";
@@ -44,14 +45,14 @@ public class HttpResultConverter<T> implements Function<String, T> {
         }
 
         // 接口状态判断处理
-        if (model != null && model.getStatus() != 200) {
-
-            mHttpException.setCode(model.getStatus());
-            mHttpException.setMsg(model.getMsg());
-            mHttpException.setDescription(model.getMsg());
-
-            throw mHttpException;
-        }
+//        if (model != null && model.getStatus() != 200) {
+//
+//            mHttpException.setCode(model.getStatus());
+//            mHttpException.setMsg(model.getMsg());
+//            mHttpException.setDescription(model.getMsg());
+//
+//            throw mHttpException;
+//        }
 
 
         return t;

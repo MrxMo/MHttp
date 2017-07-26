@@ -14,7 +14,6 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.internal.schedulers.IoScheduler;
-import io.reactivex.internal.schedulers.TrampolineScheduler;
 import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -115,26 +114,26 @@ public class MOkHttp implements MHttpAble {
 
     @Override
     public <T> Observable<T> get(String url, Map<String, Object> params) {
-        Request request = getRequest(MHttpAble.HTTP_METHOD_GET, url, params);
+        Request request = getRequest(HTTP_METHOD_GET, url, params);
         return request(params, request);
     }
 
 
     @Override
     public <T> Observable<T> post(String url, Map<String, Object> params) {
-        Request request = getRequest(MHttpAble.HTTP_METHOD_POST, url, params);
+        Request request = getRequest(HTTP_METHOD_POST, url, params);
         return request(params, request);
     }
 
     @Override
     public <T> Observable<T> put(String url, Map<String, Object> params) {
-        Request request = getRequest(MHttpAble.HTTP_METHOD_PUT, url, params);
+        Request request = getRequest(HTTP_METHOD_PUT, url, params);
         return request(params, request);
     }
 
     @Override
     public <T> Observable<T> delete(String url, Map<String, Object> params) {
-        Request request = getRequest(MHttpAble.HTTP_METHOD_DELETE, url, params);
+        Request request = getRequest(HTTP_METHOD_DELETE, url, params);
         return request(params, request);
     }
 

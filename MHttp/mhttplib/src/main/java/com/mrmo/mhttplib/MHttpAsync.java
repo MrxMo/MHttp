@@ -2,6 +2,7 @@ package com.mrmo.mhttplib;
 
 import android.content.Context;
 
+import com.mrmo.mhttplib.utils.MStringUtil;
 import com.loopj.android.http.MySSLSocketFactory;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
@@ -24,7 +25,7 @@ import io.reactivex.internal.schedulers.IoScheduler;
 public class MHttpAsync implements MHttpAble {
 
     private static final String TAG = MHttpAsync.class.getSimpleName();
-//    private AsyncHttpClient asyncHttpClient;
+    //    private AsyncHttpClient asyncHttpClient;
     protected Context context;
     private SyncHttpClient asyncHttpClient;
 
@@ -93,10 +94,10 @@ public class MHttpAsync implements MHttpAble {
         return request(url, params);
     }
 
-    private <T> Observable<T> request(final String url, final Map<String, Object> params) {
-        return Observable.create(new ObservableOnSubscribe<T>() {
+    private Observable request(final String url, final Map<String, Object> params) {
+        return Observable.create(new ObservableOnSubscribe<String>() {
             @Override
-            public void subscribe(final ObservableEmitter<T> emitter) throws Exception {
+            public void subscribe(final ObservableEmitter<String> emitter) throws Exception {
                 asyncHttpClient.post(url, mapToRequestParams(params), new TextHttpResponseHandler() {
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
@@ -107,17 +108,13 @@ public class MHttpAsync implements MHttpAble {
                         mHttpException.setDescription(throwable.toString());
                         emitter.onError(mHttpException);
 
-                        MOkHttp.printRequestStatusLog(TAG, getUrl(url, params), statusCode, response, true);
+                        MOkHttp.printRequestStatusLog(TAG, getUrl(url, params), statusCode, response, false);
                     }
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, String response) {
-                        emitter.onNext(((T) response));
+                        emitter.onNext(response);
                         emitter.onComplete();
-
-
-
-
 
                         MOkHttp.printRequestStatusLog(TAG, getUrl(url, params), statusCode, response, true);
                     }
@@ -132,12 +129,16 @@ public class MHttpAsync implements MHttpAble {
         for (Map.Entry<String, Object> entry : params.entrySet()) {
             String key = entry.getKey();
             Object object = entry.getValue();
+            if (MStringUtil.isEmpty(key) || MStringUtil.isObjectNull(object)) {
+                continue;
+            }
+
             stringBuilder.append(key);
             stringBuilder.append("=");
             stringBuilder.append(object.toString());
             stringBuilder.append("&");
         }
-        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         return stringBuilder.toString();
     }
 
@@ -149,12 +150,12 @@ public class MHttpAsync implements MHttpAble {
      */
     public static RequestParams mapToRequestParams(Map<String, Object> map) {
         RequestParams params = new RequestParams();
+//        params.setContentEncoding(HTTP.UTF_8);
 
         try {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 String key = entry.getKey();
                 if (key == null) {
-                    key = "";
                     continue;
                 }
 
@@ -165,6 +166,7 @@ public class MHttpAsync implements MHttpAble {
 
                 if (object instanceof File) {
                     params.put(key, (File) object);
+
                 } else if (object instanceof File[]) {
 //                    HQ项目需要这样用才可以上传成功
 //                    params.put("file[]", (File[]) object, "image/jpeg", "file[]");
@@ -176,7 +178,8 @@ public class MHttpAsync implements MHttpAble {
                     params.put(key, (File[]) object);
 
                 } else {
-                    params.put(key, object);
+                    String values = object.toString();
+                    params.put(key, values);
                 }
             }
         } catch (Exception e) {

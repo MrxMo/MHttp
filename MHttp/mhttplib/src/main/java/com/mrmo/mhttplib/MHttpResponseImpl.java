@@ -1,7 +1,8 @@
 package com.mrmo.mhttplib;
 
 import android.content.Context;
-import android.widget.Toast;
+
+import com.mrmo.mhttplib.utils.MToast;
 
 /**
  * http数据回调实现类
@@ -23,7 +24,7 @@ public abstract class MHttpResponseImpl<T> implements MHttpResponseAble<T> {
             msg = object.toString();
         }
 
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+        MToast.show(context, msg);
     }
 
     @Override

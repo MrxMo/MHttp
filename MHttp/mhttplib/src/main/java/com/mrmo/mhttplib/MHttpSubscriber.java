@@ -16,14 +16,33 @@ public class MHttpSubscriber<T> implements Observer<T> {
     private Context context;
     private MHttpResponseAble mHttpResponseAble;
 
+    private boolean isShowProgress = true;
+
     public MHttpSubscriber(Context context, MHttpResponseAble mHttpResponseAble) {
+        init(context, mHttpResponseAble, true);
+    }
+
+    public MHttpSubscriber(Context context, MHttpResponseAble mHttpResponseAble, boolean isShowProgress) {
+        init(context, mHttpResponseAble, isShowProgress);
+    }
+
+    private void init(Context context, MHttpResponseAble mHttpResponseAble, boolean isShowProgress) {
         this.context = context;
         this.mHttpResponseAble = mHttpResponseAble;
+        this.isShowProgress = isShowProgress;
     }
 
     @Override
     public void onSubscribe(Disposable d) {
+        if (mHttpResponseAble == null) {
+            return;
+        }
 
+        if (isShowProgress && context instanceof MActivityProgressAble) {
+            ((MActivityProgressAble) context).showProgress();
+        }
+
+        mHttpResponseAble.onPrepare();
     }
 
     @Override
@@ -32,13 +51,13 @@ public class MHttpSubscriber<T> implements Observer<T> {
             return;
         }
 
-        if (t == null) {
-            mHttpResponseAble.onFailure(context, MHttpCode.M_HTTP_CODE_HANDLE_DATA_NULL, "数据为空");
-            return;
-        }
+//        if (t == null) {
+//            mHttpResponseAble.onFailure(context, MHttpCode.M_HTTP_CODE_HANDLE_DATA_NULL, "数据为空");
+//            return;
+//        }
 
         mHttpResponseAble.onSuccess(200, t);
-
+        mHttpResponseAble.onFinish();
     }
 
     @Override
@@ -57,6 +76,12 @@ public class MHttpSubscriber<T> implements Observer<T> {
         }
 
         mHttpResponseAble.onFailure(context, code, msg);
+
+        if (isShowProgress && context instanceof MActivityProgressAble) {
+            ((MActivityProgressAble) context).hideProgress();
+        }
+
+        mHttpResponseAble.onFinish();
     }
 
     @Override
@@ -66,5 +91,9 @@ public class MHttpSubscriber<T> implements Observer<T> {
         }
 
         mHttpResponseAble.onFinish();
+
+        if (isShowProgress && context instanceof MActivityProgressAble) {
+            ((MActivityProgressAble) context).hideProgress();
+        }
     }
 }

@@ -3,8 +3,8 @@ package com.mrmo.mhttplib;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.mrmo.mhttplib.utils.MStringUtil;
+import com.google.gson.Gson;
 
 import java.util.Map;
 
@@ -13,11 +13,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-
-import static com.mrmo.mhttplib.MHttpAble.HTTP_METHOD_DELETE;
-import static com.mrmo.mhttplib.MHttpAble.HTTP_METHOD_GET;
-import static com.mrmo.mhttplib.MHttpAble.HTTP_METHOD_POST;
-import static com.mrmo.mhttplib.MHttpAble.HTTP_METHOD_PUT;
 
 /**
  * Created by moguangjian on 15/10/14 17:51.
@@ -112,19 +107,19 @@ public abstract class MAPI {
         }
 
         switch (method) {
-            case HTTP_METHOD_POST:
+            case MHttpAble.HTTP_METHOD_POST:
                 observable = mHttpBridge.post(url, params);
                 break;
 
-            case HTTP_METHOD_GET:
+            case MHttpAble.HTTP_METHOD_GET:
                 observable =  mHttpBridge.get(url, params);
                 break;
 
-            case HTTP_METHOD_PUT:
+            case MHttpAble.HTTP_METHOD_PUT:
                 observable =  mHttpBridge.put(url, params);
                 break;
 
-            case HTTP_METHOD_DELETE:
+            case MHttpAble.HTTP_METHOD_DELETE:
                 observable =  mHttpBridge.delete(url, params);
                 break;
         }
