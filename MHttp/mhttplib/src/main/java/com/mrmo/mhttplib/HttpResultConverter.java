@@ -6,15 +6,14 @@ import com.google.gson.Gson;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
+import rx.functions.Func1;
 
 /**
  * json解析处理。注意：MHttpResultModel是统一处理json实体。根据实际情况自定该类。
  * Created by moguangjian on 2017/3/12.
  */
 
-public class HttpResultConverter<T> implements Function<String, T> {
+public class HttpResultConverter<T> implements Func1<String, T> {
 
     private static final String TAG = HttpResultConverter.class.getSimpleName();
     private Gson gson;
@@ -24,7 +23,7 @@ public class HttpResultConverter<T> implements Function<String, T> {
     }
 
     @Override
-    public T apply(@NonNull String str) throws Exception {
+    public T call(String str) {
         T t = null;
         Type type = getClass().getGenericSuperclass();
         MHttpException mHttpException = new MHttpException();
@@ -41,7 +40,7 @@ public class HttpResultConverter<T> implements Function<String, T> {
 
             e.printStackTrace();
 
-            throw mHttpException;
+//            throw mHttpException;
         }
 
         // 接口状态判断处理
@@ -53,8 +52,6 @@ public class HttpResultConverter<T> implements Function<String, T> {
 //
 //            throw mHttpException;
 //        }
-
-
         return t;
     }
 }

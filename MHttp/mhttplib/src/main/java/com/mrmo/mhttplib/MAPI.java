@@ -8,11 +8,11 @@ import com.google.gson.Gson;
 
 import java.util.Map;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by moguangjian on 15/10/14 17:51.
@@ -134,7 +134,7 @@ public abstract class MAPI {
      * @param observer
      * @param <T>
      */
-    protected  <T> void requestSubscribe(Observable<T> observable, Function function, Observer observer) {
+    protected  <T> void requestSubscribe(Observable<T> observable, Func1 function, Observer observer) {
         observable
                 .map(function)
                 .subscribeOn(Schedulers.io())

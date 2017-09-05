@@ -2,8 +2,7 @@ package com.mrmo.mhttplib;
 
 import android.content.Context;
 
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
+import rx.Observer;
 
 
 /**
@@ -32,24 +31,17 @@ public class MHttpSubscriber<T> implements Observer<T> {
         this.isShowProgress = isShowProgress;
     }
 
-    @Override
-    public void onSubscribe(Disposable d) {
-        if (mHttpResponseAble == null) {
-            return;
-        }
-
-        if (isShowProgress && context instanceof MActivityProgressAble) {
-            ((MActivityProgressAble) context).showProgress();
-        }
-
-        mHttpResponseAble.onPrepare();
-    }
 
     @Override
     public void onNext(T t) {
         if (mHttpResponseAble == null) {
             return;
         }
+        if (isShowProgress && context instanceof MActivityProgressAble) {
+            ((MActivityProgressAble) context).showProgress();
+        }
+
+        mHttpResponseAble.onPrepare();
 
 //        if (t == null) {
 //            mHttpResponseAble.onFailure(context, MHttpCode.M_HTTP_CODE_HANDLE_DATA_NULL, "数据为空");
@@ -85,7 +77,7 @@ public class MHttpSubscriber<T> implements Observer<T> {
     }
 
     @Override
-    public void onComplete() {
+    public void onCompleted() {
         if (mHttpResponseAble == null) {
             return;
         }

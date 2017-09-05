@@ -6,20 +6,20 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.mrmo.mhttplib.utils.MStringUtil;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.internal.schedulers.IoScheduler;
 import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import rx.Observable;
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 /**
  * http请求。使用OkHttp请求http。
@@ -256,11 +256,25 @@ public class MOkHttp implements MHttpAble {
 //                response(url, response, mHttpResponseAble);
 //            }
 //        });
-
-        return Observable.create(new ObservableOnSubscribe<T>() {
+        return Observable.create(new Observable.OnSubscribe<T>() {
             @Override
-            public void subscribe(ObservableEmitter<T> emitter) throws Exception {
-                Response response = call.execute(); // 同步
+            public void call(Subscriber<? super T> subscriber) {
+                String result = "";
+                boolean isSuccess = true;
+
+                Response response = null; // 同步
+                try {
+                    response = call.execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    isSuccess = false;
+
+                    MHttpException mHttpException = new MHttpException();
+                    mHttpException.setCode(MHttpCode.M_HTTP_CODE_RESPONSE_DATA_EXCEPTION);
+                    mHttpException.setMsg("数据异常");
+                    mHttpException.setDescription(e.toString());
+                    subscriber.onError(mHttpException);
+                }
 
                 if (!MAPI.isDebug()) {
                     Log.i(TAG, "Server: " + response.header("Server"));
@@ -268,8 +282,7 @@ public class MOkHttp implements MHttpAble {
                     Log.i(TAG, "Vary: " + response.headers("Vary"));
                 }
 
-                String result = "";
-                boolean isSuccess = true;
+
                 try {
                     result = response.body().string();
                 } catch (Exception e) {
@@ -280,7 +293,7 @@ public class MOkHttp implements MHttpAble {
                     mHttpException.setCode(MHttpCode.M_HTTP_CODE_RESPONSE_DATA_EXCEPTION);
                     mHttpException.setMsg("数据异常");
                     mHttpException.setDescription(e.toString());
-                    emitter.onError(mHttpException);
+                    subscriber.onError(mHttpException);
                 }
 
                 if (!response.isSuccessful()) {
@@ -289,11 +302,11 @@ public class MOkHttp implements MHttpAble {
                     mHttpException.setCode(response.code());
                     mHttpException.setMsg("网络不给力");
                     mHttpException.setDescription(result);
-                    emitter.onError(mHttpException);
+                    subscriber.onError(mHttpException);
 
                 } else {
                     isSuccess = true;
-                    emitter.onNext(((T) result));
+                    subscriber.onNext(((T) result));
 
 //                    Map<String, String> gist = getGsonInstance().fromJson(response.body().charStream(), Map.class);
 //                    for (Map.Entry<String, String> entry : gist.entrySet()) {
@@ -301,11 +314,11 @@ public class MOkHttp implements MHttpAble {
 //                    }
                 }
 
-                emitter.onComplete();
+                subscriber.onCompleted();
 
                 printRequestStatusLog(url, response.code(), result, isSuccess);
             }
-        }).subscribeOn(new IoScheduler());
+        }).subscribeOn(Schedulers.io());
     }
 
 }

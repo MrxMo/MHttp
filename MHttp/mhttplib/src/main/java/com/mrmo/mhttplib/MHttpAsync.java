@@ -13,10 +13,9 @@ import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.impl.client.BasicCookieStore;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.internal.schedulers.IoScheduler;
+import rx.Observable;
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 /**
  * http请求。使用android-async-http请求http。
@@ -95,9 +94,10 @@ public class MHttpAsync implements MHttpAble {
     }
 
     private Observable request(final String url, final Map<String, Object> params) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
+        return  Observable.create(new Observable.OnSubscribe<Object>() {
+
             @Override
-            public void subscribe(final ObservableEmitter<String> emitter) throws Exception {
+            public void call(final Subscriber<? super Object> subscriber) {
                 asyncHttpClient.post(url, mapToRequestParams(params), new TextHttpResponseHandler() {
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
@@ -106,21 +106,21 @@ public class MHttpAsync implements MHttpAble {
                         mHttpException.setCode(statusCode);
                         mHttpException.setMsg("请求失败");
                         mHttpException.setDescription(throwable.toString());
-                        emitter.onError(mHttpException);
+                        subscriber.onError(mHttpException);
 
                         MOkHttp.printRequestStatusLog(TAG, getUrl(url, params), statusCode, response, false);
                     }
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, String response) {
-                        emitter.onNext(response);
-                        emitter.onComplete();
+                        subscriber.onNext(response);
+                        subscriber.onCompleted();
 
                         MOkHttp.printRequestStatusLog(TAG, getUrl(url, params), statusCode, response, true);
                     }
                 });
             }
-        }).subscribeOn(new IoScheduler());
+        }).subscribeOn(Schedulers.io());
     }
 
     private String getUrl(String url, Map<String, Object> params) {

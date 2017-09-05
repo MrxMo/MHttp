@@ -4,20 +4,17 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mrmo.mhttplib.MHttpCode;
-import com.mrmo.mhttplib.MHttpException;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
+import rx.functions.Func1;
 
 /**
  * json解析处理。注意：GHttpResultConverter。根据实际情况自定该类。
  * Created by moguangjian on 2017/3/12.
  */
 
-public class GHttpResultConverter<T> implements Function<String, T> {
+public class GHttpResultConverter<T> implements Func1<String, T> {
 
     private static final String TAG = GHttpResultConverter.class.getSimpleName();
     private Gson gson;
@@ -27,9 +24,10 @@ public class GHttpResultConverter<T> implements Function<String, T> {
     }
 
     @Override
-    public T apply(@NonNull String str) throws Exception {
+    public T call(String str) {
         T t = null;
-        Type type = new TypeToken<T>(){}.getType();
+        Type type = new TypeToken<T>() {
+        }.getType();
         try {
             t = gson.fromJson(str, type);
 
@@ -40,7 +38,7 @@ public class GHttpResultConverter<T> implements Function<String, T> {
 
         }
 
-        System.out.println(type.toString()+ " jj: "+t.toString());
+        System.out.println(type.toString() + " jj: " + t.toString());
 //        if (model != null && !model.getStatus().equals("success")) {
 //            mHttpException.setCode(-1);
 //            mHttpException.setMsg(model.getStatus());

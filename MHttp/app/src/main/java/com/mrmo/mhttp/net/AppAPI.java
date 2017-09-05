@@ -8,9 +8,7 @@ import com.mrmo.mhttplib.MHttpSubscriber;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
+import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by moguangjian on 15/10/16 11:32.
@@ -32,14 +30,7 @@ public class AppAPI extends GAPI {
         map.put("sex", "boy");
 
         post("getWelcome.html", map)
-                .map(new GHttpResultConverter<TestModel>(gson))
-                .map(new Function<TestModel, TestModel>() {
-
-                    @Override
-                    public TestModel apply(@NonNull TestModel testModel) throws Exception {
-                        return null;
-                    }
-                });
+                .map(new GHttpResultConverter<TestModel>(gson));
 
 
         requestSubscribe(
@@ -61,13 +52,13 @@ public class AppAPI extends GAPI {
 
         post("User/getcode", map)
                 .map(new GHttpResultConverter<VerifyCodeModel>(gson))
-                .map(new Function<VerifyCodeModel, VerifyCodeModel.DataBean>() {
-
-                    @Override
-                    public VerifyCodeModel.DataBean apply(@NonNull VerifyCodeModel testModel) throws Exception {
-                        return testModel.getData();
-                    }
-                })
+//                .map(new Function<VerifyCodeModel, VerifyCodeModel.DataBean>() {
+//
+//                    @Override
+//                    public VerifyCodeModel.DataBean apply(VerifyCodeModel verifyCodeModel) {
+//                        return verifyCodeModel.getData();
+//                    }
+//                })
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(new MHttpSubscriber<VerifyCodeModel.DataBean>(context, mHttpResponseAble));
 
 //        requestSubscribe(

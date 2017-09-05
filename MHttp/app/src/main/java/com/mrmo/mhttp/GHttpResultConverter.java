@@ -7,15 +7,14 @@ import com.mrmo.mhttp.net.HttpResultModel;
 import com.mrmo.mhttplib.MHttpCode;
 import com.mrmo.mhttplib.MHttpException;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
+import rx.functions.Func1;
 
 /**
  * json解析处理。注意：GHttpResultConverter。根据实际情况自定该类。
  * Created by moguangjian on 2017/3/12.
  */
 
-public class GHttpResultConverter<T> implements Function<String, T> {
+public class GHttpResultConverter<T> implements Func1<String, T> {
 
     private static final String TAG = GHttpResultConverter.class.getSimpleName();
     private Gson gson;
@@ -24,8 +23,9 @@ public class GHttpResultConverter<T> implements Function<String, T> {
         this.gson = gson;
     }
 
+
     @Override
-    public T apply(@NonNull String str) throws Exception {
+    public T call(String str) {
         T t = null;
         HttpResultModel model = null;
         try {
@@ -42,7 +42,7 @@ public class GHttpResultConverter<T> implements Function<String, T> {
 
             e.printStackTrace();
 
-            throw mHttpException;
+//            throw mHttpException;
         }
 
 
@@ -52,7 +52,7 @@ public class GHttpResultConverter<T> implements Function<String, T> {
             mHttpException.setMsg(model.getMsg());
             mHttpException.setDescription(model.getMsg());
 
-            throw mHttpException;
+//            throw mHttpException;
         }
 
 

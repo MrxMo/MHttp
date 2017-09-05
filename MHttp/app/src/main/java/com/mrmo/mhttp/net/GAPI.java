@@ -6,7 +6,6 @@ import android.os.Build;
 import com.mrmo.mhttplib.MAPI;
 import com.mrmo.mhttplib.MHttpAble;
 import com.mrmo.mhttplib.MHttpAsync;
-import com.mrmo.mhttplib.MOkHttp;
 import com.mrmo.mhttplib.utils.MMd5Util;
 
 import java.util.Arrays;
@@ -14,13 +13,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-
-import static android.R.attr.host;
 
 /**
  * Created by moguangjian on 15/10/16 11:23.
