@@ -52,7 +52,7 @@ public class GHttpResultConverter<T> implements Func1<String, T> {
             mHttpException.setMsg(model.getMsg());
             mHttpException.setDescription(model.getMsg());
 
-//            throw mHttpException;
+            throw mHttpException;
         }
 
 

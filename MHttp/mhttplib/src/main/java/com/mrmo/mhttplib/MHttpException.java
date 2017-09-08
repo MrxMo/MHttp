@@ -5,7 +5,7 @@ package com.mrmo.mhttplib;
  * Created by moguangjian on 2017/3/12.
  */
 
-public class MHttpException extends Exception {
+public class MHttpException extends RuntimeException {
 
     /**
      * 请求状态码
