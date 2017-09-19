@@ -165,7 +165,7 @@ public class MHttpAsync implements MHttpAble {
                 }
 
                 if (object instanceof File) {
-                    params.put(key, (File) object);
+                    params.put(key, (File) object, "image/jpeg", key);
 
                 } else if (object instanceof File[]) {
 //                    HQ项目需要这样用才可以上传成功
