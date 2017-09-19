@@ -24,7 +24,7 @@ import rx.schedulers.Schedulers;
 public class MHttpAsync implements MHttpAble {
 
     private static final String TAG = MHttpAsync.class.getSimpleName();
-    //    private AsyncHttpClient asyncHttpClient;
+    //    private AsyncHttpClient asyncHttpClient; 
     protected Context context;
     private SyncHttpClient asyncHttpClient;
 
