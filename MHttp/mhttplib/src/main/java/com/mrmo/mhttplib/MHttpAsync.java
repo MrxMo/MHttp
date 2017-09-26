@@ -2,6 +2,7 @@ package com.mrmo.mhttplib;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
 import com.mrmo.mhttplib.utils.MStringUtil;
 import com.loopj.android.http.MySSLSocketFactory;
 import com.loopj.android.http.RequestParams;
@@ -24,7 +25,7 @@ import rx.schedulers.Schedulers;
 public class MHttpAsync implements MHttpAble {
 
     private static final String TAG = MHttpAsync.class.getSimpleName();
-    //    private AsyncHttpClient asyncHttpClient; 
+    //    private AsyncHttpClient asyncHttpClient;
     protected Context context;
     private SyncHttpClient asyncHttpClient;
 
@@ -94,7 +95,7 @@ public class MHttpAsync implements MHttpAble {
     }
 
     private Observable request(final String url, final Map<String, Object> params) {
-        return  Observable.create(new Observable.OnSubscribe<Object>() {
+        return Observable.create(new Observable.OnSubscribe<Object>() {
 
             @Override
             public void call(final Subscriber<? super Object> subscriber) {
@@ -113,14 +114,24 @@ public class MHttpAsync implements MHttpAble {
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, String response) {
-                        subscriber.onNext(response);
-                        subscriber.onCompleted();
-
-                        MOkHttp.printRequestStatusLog(TAG, getUrl(url, params), statusCode, response, true);
+                        onServerResponse(statusCode, "post", url, params, response, subscriber);
                     }
                 });
             }
         }).subscribeOn(Schedulers.io());
+    }
+
+    protected void onServerResponse(
+            int statusCode,
+            String url,
+            String method,
+            Map<String, Object> params,
+            String response,
+            Subscriber<? super Object> subscriber) {
+        subscriber.onNext(response);
+        subscriber.onCompleted();
+
+        MOkHttp.printRequestStatusLog(TAG, getUrl(url, params), statusCode, response, true);
     }
 
     private String getUrl(String url, Map<String, Object> params) {
@@ -146,7 +157,6 @@ public class MHttpAsync implements MHttpAble {
      * map转RequestParams
      *
      * @param map
-     * @return
      */
     public static RequestParams mapToRequestParams(Map<String, Object> map) {
         RequestParams params = new RequestParams();
