@@ -81,7 +81,7 @@ public class MHttpSubscriber<T> implements MObserver<T> {
 
             if (mActivityProgressAble.isRequestAllFinish()) {
                 mActivityProgressAble.hideProgress();
-            }
+            } 
         }
     }
 
