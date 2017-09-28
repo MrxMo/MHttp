@@ -10,7 +10,7 @@ import rx.Observer;
  * Created by moguangjian on 2017/3/12.
  */
 
-public class MHttpSubscriber<T> implements Observer<T> {
+public class MHttpSubscriber<T> implements MObserver<T> {
 
     private Context context;
     private MHttpResponseAble mHttpResponseAble;
@@ -31,22 +31,25 @@ public class MHttpSubscriber<T> implements Observer<T> {
         this.isShowProgress = isShowProgress;
     }
 
+    @Override
+    public void onPrepare() {
+        if (mHttpResponseAble == null) {
+            return;
+        }
+        mHttpResponseAble.onPrepare();
+
+        if (isShowProgress && context instanceof MActivityProgressAble) {
+            ((MActivityProgressAble) context).showProgress();
+            ((MActivityProgressAble) context).addRequestRecordCount();
+        }
+
+    }
 
     @Override
     public void onNext(T t) {
         if (mHttpResponseAble == null) {
             return;
         }
-        if (isShowProgress && context instanceof MActivityProgressAble) {
-            ((MActivityProgressAble) context).showProgress();
-        }
-
-        mHttpResponseAble.onPrepare();
-
-//        if (t == null) {
-//            mHttpResponseAble.onFailure(context, MHttpCode.M_HTTP_CODE_HANDLE_DATA_NULL, "数据为空");
-//            return;
-//        }
 
         mHttpResponseAble.onSuccess(200, t);
         mHttpResponseAble.onFinish();
@@ -68,12 +71,18 @@ public class MHttpSubscriber<T> implements Observer<T> {
         }
 
         mHttpResponseAble.onFailure(context, code, msg);
-
-        if (isShowProgress && context instanceof MActivityProgressAble) {
-            ((MActivityProgressAble) context).hideProgress();
-        }
-
         mHttpResponseAble.onFinish();
+
+        if (context instanceof MActivityProgressAble) {
+            MActivityProgressAble mActivityProgressAble = ((MActivityProgressAble) context);
+            if (isShowProgress) {
+                mActivityProgressAble.reduceRequestRecordCount();
+            }
+
+            if (mActivityProgressAble.isRequestAllFinish()) {
+                mActivityProgressAble.hideProgress();
+            }
+        }
     }
 
     @Override
@@ -81,11 +90,19 @@ public class MHttpSubscriber<T> implements Observer<T> {
         if (mHttpResponseAble == null) {
             return;
         }
-
         mHttpResponseAble.onFinish();
 
-        if (isShowProgress && context instanceof MActivityProgressAble) {
-            ((MActivityProgressAble) context).hideProgress();
+        if (context instanceof MActivityProgressAble) {
+            MActivityProgressAble mActivityProgressAble = ((MActivityProgressAble) context);
+            if (isShowProgress) {
+                mActivityProgressAble.reduceRequestRecordCount();
+            }
+
+            if (mActivityProgressAble.isRequestAllFinish()) {
+                mActivityProgressAble.hideProgress();
+            }
         }
+
+
     }
 }

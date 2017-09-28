@@ -1,5 +1,6 @@
 package com.mrmo.mhttplib;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import rx.Observable;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -112,15 +114,15 @@ public abstract class MAPI {
                 break;
 
             case MHttpAble.HTTP_METHOD_GET:
-                observable =  mHttpBridge.get(url, params);
+                observable = mHttpBridge.get(url, params);
                 break;
 
             case MHttpAble.HTTP_METHOD_PUT:
-                observable =  mHttpBridge.put(url, params);
+                observable = mHttpBridge.put(url, params);
                 break;
 
             case MHttpAble.HTTP_METHOD_DELETE:
-                observable =  mHttpBridge.delete(url, params);
+                observable = mHttpBridge.delete(url, params);
                 break;
         }
 
@@ -129,16 +131,36 @@ public abstract class MAPI {
 
     /**
      * 发送请求订阅
+     *
      * @param observable
      * @param function
      * @param observer
      * @param <T>
      */
-    protected  <T> void requestSubscribe(Observable<T> observable, Func1 function, Observer observer) {
+    @Deprecated
+    protected <T> void requestSubscribe(Observable<T> observable, Func1 function, Observer observer) {
         observable
                 .map(function)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observer);
+    }
+
+    protected <T> void requestSubscribe(Observable<T> observable, Func1 function, final MObserver observer) {
+        observable
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        if (observer instanceof MObserver) {
+                            observer.onPrepare();
+                        }
+
+                    }
+                })
+                .map(function)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+
     }
 }
