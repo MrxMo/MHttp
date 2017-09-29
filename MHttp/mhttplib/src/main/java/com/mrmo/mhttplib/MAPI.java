@@ -3,6 +3,7 @@ package com.mrmo.mhttplib;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.mrmo.mhttplib.utils.MStringUtil;
 import com.google.gson.Gson;
@@ -151,12 +152,14 @@ public abstract class MAPI {
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
+                        Log.e("", "request-->doOnSubscribe");
                         if (observer instanceof MObserver) {
                             observer.onPrepare();
                         }
 
                     }
                 })
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .map(function)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

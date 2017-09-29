@@ -50,20 +50,20 @@ public class AppAPI extends GAPI {
         map.put("phone", "15521212697");
         map.put("type", "1");
 
-        post("User/getcode", map)
-                .map(new GHttpResultConverter<VerifyCodeModel>(gson))
-//                .map(new Function<VerifyCodeModel, VerifyCodeModel.DataBean>() {
-//
-//                    @Override
-//                    public VerifyCodeModel.DataBean apply(VerifyCodeModel verifyCodeModel) {
-//                        return verifyCodeModel.getData();
-//                    }
-//                })
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(new MHttpSubscriber<VerifyCodeModel.DataBean>(context, mHttpResponseAble));
+//        post("User/getcode", map)
+//                .map(new GHttpResultConverter<VerifyCodeModel>(gson))
+////                .map(new Function<VerifyCodeModel, VerifyCodeModel.DataBean>() {
+////
+////                    @Override
+////                    public VerifyCodeModel.DataBean apply(VerifyCodeModel verifyCodeModel) {
+////                        return verifyCodeModel.getData();
+////                    }
+////                })
+//                .observeOn(AndroidSchedulers.mainThread()).subscribe(new MHttpSubscriber<VerifyCodeModel.DataBean>(context, mHttpResponseAble));
 
-//        requestSubscribe(
-//                post("User/getcode", map),
-//                new GHttpResultConverter<HttpResultModel>(gson),
-//                new MHttpSubscriber<HttpResultModel>(context, mHttpResponseAble));
+        requestSubscribe(
+                post("User/getcode", map),
+                new GHttpResultConverter<HttpResultModel>(gson),
+                new MHttpSubscriber<HttpResultModel>(context, mHttpResponseAble));
     }
 }

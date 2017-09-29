@@ -1,6 +1,7 @@
 package com.mrmo.mhttplib;
 
 import android.content.Context;
+import android.util.Log;
 
 import rx.Observer;
 
@@ -33,6 +34,7 @@ public class MHttpSubscriber<T> implements MObserver<T> {
 
     @Override
     public void onPrepare() {
+        Log.e("", "MHttpSubscriber-->onPrepare");
         if (mHttpResponseAble == null) {
             return;
         }
@@ -41,6 +43,7 @@ public class MHttpSubscriber<T> implements MObserver<T> {
         if (isShowProgress && context instanceof MActivityProgressAble) {
             ((MActivityProgressAble) context).showProgress();
             ((MActivityProgressAble) context).addRequestRecordCount();
+            Log.e("", "MHttpSubscriber-->onPrepare showProgress");
         }
 
     }
@@ -72,6 +75,7 @@ public class MHttpSubscriber<T> implements MObserver<T> {
 
         mHttpResponseAble.onFailure(context, code, msg);
         mHttpResponseAble.onFinish();
+        Log.e("", "MHttpSubscriber-->onError");
 
         if (context instanceof MActivityProgressAble) {
             MActivityProgressAble mActivityProgressAble = ((MActivityProgressAble) context);
@@ -81,7 +85,8 @@ public class MHttpSubscriber<T> implements MObserver<T> {
 
             if (mActivityProgressAble.isRequestAllFinish()) {
                 mActivityProgressAble.hideProgress();
-            } 
+                Log.e("", "MHttpSubscriber-->onError hideProgress");
+            }
         }
     }
 
@@ -91,7 +96,7 @@ public class MHttpSubscriber<T> implements MObserver<T> {
             return;
         }
         mHttpResponseAble.onFinish();
-
+        Log.e("", "MHttpSubscriber-->onCompleted");
         if (context instanceof MActivityProgressAble) {
             MActivityProgressAble mActivityProgressAble = ((MActivityProgressAble) context);
             if (isShowProgress) {
@@ -100,6 +105,7 @@ public class MHttpSubscriber<T> implements MObserver<T> {
 
             if (mActivityProgressAble.isRequestAllFinish()) {
                 mActivityProgressAble.hideProgress();
+                Log.e("", "MHttpSubscriber-->onCompleted hideProgress");
             }
         }
 

@@ -1,6 +1,7 @@
 package com.mrmo.mhttplib;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.mrmo.mhttplib.utils.MStringUtil;
@@ -16,6 +17,7 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.impl.client.BasicCookieStore;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
