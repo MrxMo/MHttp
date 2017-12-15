@@ -2,6 +2,8 @@ package com.mrmo.mhttplib;
 
 import android.content.Context;
 
+import com.mrmo.mhttplib.config.HttpErrorHintAble;
+import com.mrmo.mhttplib.config.MHttpConfig;
 import com.mrmo.mhttplib.utils.MToast;
 
 /**
@@ -14,16 +16,24 @@ public abstract class MHttpResponseImpl<T> implements MHttpResponseAble<T> {
 
     @Override
     public void onFailure(Context context, int statusCode, Object object) {
-        if (context == null) {
-            return;
-        }
-
         String msg = "未知异常";
         if (object instanceof String) {
-//            MToastUtil.show(context, object.toString());
             msg = object.toString();
         }
 
+        HttpErrorHintAble httpErrorHintAble = MHttpConfig.getInstance().getHttpErrorHintAble();
+        if (httpErrorHintAble != null) {
+
+            httpErrorHintAble.onShow(statusCode, msg);
+
+            if (!httpErrorHintAble.isShowDefaultHint()) {
+                return;
+            }
+        }
+
+        if (context == null) {
+            return;
+        }
         MToast.show(context, msg);
     }
 

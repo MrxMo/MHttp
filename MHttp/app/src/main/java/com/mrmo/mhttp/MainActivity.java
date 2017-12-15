@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements MActivityProgress
 //
 //            @Override
 //            public void onSuccessResult(int statusCode, final TestModel testModel) {
-//                Toast.makeText(getApplicationContext(), ""+testModel.getImage(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), ""+testModel.getImage(), Toast.LENGTH_SHORT).onShow();
 //            }
 //        });
 
