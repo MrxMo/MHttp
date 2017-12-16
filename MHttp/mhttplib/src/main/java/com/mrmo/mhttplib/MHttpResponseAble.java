@@ -6,7 +6,9 @@ import android.support.annotation.Nullable;
 
 /**
  * http请求回调接口
- * Created by moguangjian on 15/10/10 14:08.
+ *
+ * @author moguangjian
+ * @date 15/10/10
  */
 public interface MHttpResponseAble<T> {
 

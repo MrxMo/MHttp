@@ -2,7 +2,9 @@ package com.mrmo.mhttplib;
 
 /**
  * 自定义http异常
- * Created by moguangjian on 2017/3/12.
+ *
+ * @author moguangjian
+ * @date 2017/3/12
  */
 
 public class MHttpException extends RuntimeException {
