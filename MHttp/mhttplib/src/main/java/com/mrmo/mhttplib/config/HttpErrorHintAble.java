@@ -1,5 +1,7 @@
 package com.mrmo.mhttplib.config;
 
+import android.content.Context;
+
 /**
  * <p>网络请求默认错误提示配置。</p>
  *
@@ -9,10 +11,11 @@ package com.mrmo.mhttplib.config;
 public interface HttpErrorHintAble {
 
     /**
+     * @param context
      * @param statusCode 错误状态码
      * @param hint       提示语
      */
-    void onShow(int statusCode, String hint);
+    void onShow(Context context, int statusCode, String hint);
 
     /**
      * 是否屏蔽默认提示

@@ -24,7 +24,7 @@ public abstract class MHttpResponseImpl<T> implements MHttpResponseAble<T> {
         HttpErrorHintAble httpErrorHintAble = MHttpConfig.getInstance().getHttpErrorHintAble();
         if (httpErrorHintAble != null) {
 
-            httpErrorHintAble.onShow(statusCode, msg);
+            httpErrorHintAble.onShow(context, statusCode, msg);
 
             if (!httpErrorHintAble.isShowDefaultHint()) {
                 return;
